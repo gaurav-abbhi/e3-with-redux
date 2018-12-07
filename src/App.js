@@ -1,28 +1,42 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {Component} from "react";
+import "./App.css";
+import {connect} from "react-redux";
+import {fetchTv} from "./actions/catalog";
+import _ from "lodash";
+import {image} from "./services/tmdb";
 
 class App extends Component {
+    componentDidMount() {
+        const {dispatch} = this.props;
+        dispatch(fetchTv());
+    }
+
+    handleShowMore() {
+        const {dispatch} = this.props;
+        dispatch(fetchTv((this.props.tv.activePage + 1)));
+    }
+
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+        <div>
+            {this.props.tv
+                ? _.map(this.props.tv.results, (value, key) =>
+                    <div key={key}>
+                        <h3>{value.name}</h3>
+                        <img src={image(value.poster_path)} alt=""/>
+                    </div>
+                )
+                : "Loading"}
+            {/*<li>Hello</li>*/}
+            <button onClick={() => this.handleShowMore()}>Show More</button>
       </div>
     );
   }
 }
 
-export default App;
+const mapStateToProps = state => {
+    const {catalog} = state;
+    return catalog;
+};
+
+export default connect(mapStateToProps)(App);
